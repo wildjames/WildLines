@@ -1,0 +1,31 @@
+#!/bin/bash
+
+echo "Make sure you sun this script as sudo!"
+echo "Creating Symbolic links in the bin..."
+
+BIN='/usr/local/bin'
+WILDLINES=$PWD
+echo "Creating symbolic links to current folder," $WILDLINES
+
+sudo chmod +x ./*
+
+ln -sf $WILDLINES/checklines.py      $BIN/checklines
+ln -sf $WILDLINES/quickplot.py       $BIN/quickplot
+ln -sf $WILDLINES/read_kurucz.py     $BIN/read_kurucz
+ln -sf $WILDLINES/read_TOSS.py       $BIN/read_TOSS
+ln -sf $WILDLINES/read_uky.py        $BIN/read_uky
+ln -sf $WILDLINES/read_VALD.py       $BIN/read_VALD
+ln -sf $WILDLINES/reportlines.py     $BIN/reportlines
+ln -sf $WILDLINES/wildlines.py       $BIN/wildlines
+ln -sf $WILDLINES/plot_balmer.py     $BIN/plot_balmer
+
+echo ""
+echo "If you got no error messages, you should now have the follwoing commands:"
+echo "- read_kurucz"
+echo "- read_uky"
+echo "- read_TOSS"
+echo "- read_VALD"
+echo "--> These take the outputs from the relevant websites (see comments of each script for details) and converts to .lte format"
+echo ""
+echo "quickplot  - Reads a spectrum file, or any file separated into columns, and plots it in a publication-style plot"
+echo "reportlines - Reads and summarises a .lte file"
