@@ -14,7 +14,7 @@ from matplotlib import rc
 import time
 import os
 # Alter rcparams to make the font not look as terrible, and enable latex.
-rc('font', **{'family':'serif','serif':['Palatino'],'size':12})
+rc('font', **{'family':'serif','serif':['Palatino'],'size':10})
 rc('text', usetex=True)
 rc('lines', linewidth=0.75)
 
@@ -43,7 +43,7 @@ print 'Be patient, latex makes drawing a slow process...'
 
 def setup_plot(title=None, wr=20):
 # Setup a figure plotting area, with the right parameters.
-	fig, ax = plt.subplots(figsize=(3.5,4))
+	fig, ax = plt.subplots(figsize=(3.15,4))
 	if title != None:
 		fig.subplots_adjust(left=0.15, right=0.95, top=0.94, bottom=0.12)
 		plt.title(title)

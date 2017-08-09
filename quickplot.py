@@ -20,10 +20,11 @@ rc('axes', prop_cycle=(cycler('color', ['r', 'b', 'g', 'y'])))
 
 
 ### FIGURE SIZE (INCHES) ###
-plt.rcParams["figure.figsize"] = (3.5,4)
+plt.rcParams["figure.figsize"] = (7,  4) # (width, height)
+plt.rcParams["figure.figsize"] = (3.5,4) # two column size
 ### Y RANGE              ###
 yyrange = [0.0, 1.2]
-### FONT SIZE! IF YOU CHANGE THE FIGSIZE, YOU PROBABLY WANT TO CHANGE THIS TOO
+### FONT SIZE! IF YOU CHANGE THE FIGSIZE DRAMATICALLY, YOU PROBABLY WANT TO CHANGE THIS TOO
 rc('font', **{'family':'sans','serif':['DejaVu'],'size':11})
 
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # James Wild, 2017
-# Takes a 
+# Takes a CRTS lightcurve, and plots it. Also plots a histogram of the magnitudes.
 
 filename = raw_input('Enter the filename: ')
 

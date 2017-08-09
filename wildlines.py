@@ -1,15 +1,7 @@
 #!/usr/bin/env python
-#
-#   James Wild, 2017
-#
-# This is my plotting tool. Run it in the working analysis directory. For linefiles, models, etc., it follows sym links.
-# Requires at the minimum, a line list, SFIT input file, 
-#  and observations (in two column format with 3-line header, where the third line is the number of data)
-# Hopefully, usage should be self-explainatory. 
 
 import matplotlib.pyplot as mpl
 import numpy as np
-import plotly.plotly as plt
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.widgets import Slider, Button, RadioButtons
 import os
@@ -18,22 +10,32 @@ import subprocess
 import fnmatch
 from matplotlib import rc
 import time
-
+import Tkinter
+from Tkinter import *
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from ScrolledText import *
+import tkFileDialog
+import tkMessageBox
+import threading
 
 class mplplotter():
 
     def __init__(self, finput=None, flines=None, fname=None, idfile=None):
-        print "James Wild's little plotting tool, designed for use with SFIT - Press 'h' to show the controls."
+        print "James Wild's matplotlib plotting tool, designed for use with SFIT - Press 'h' to show the controls."
 
         # Set up our matplotlib stuff
-        rc('font', **{'family':'serif','serif':['Palatino']})
+        # rc('font', **{'family':'serif','serif':['Palatino']})
         rc('font', **{'size':11})
-        rc('text', usetex=True)
+        rc('text', usetex=False)
+        rc('lines', linewidth=0.75)
         mpl.rcParams['keymap.xscale'] = ''
         mpl.rcParams['keymap.yscale'] = ''
         mpl.rcParams['keymap.forward'] = ''
         mpl.rcParams['keymap.back'] = ''
         mpl.rcParams['keymap.fullscreen'] = ''
+
+        # Resize terminal window
+        print "\x1b[8;15;140t"
 
         # print 'init'
         self.finput = finput
@@ -44,10 +46,8 @@ class mplplotter():
         self.v = 0.0
         self.get_files(finput=finput, fname=fname, flines=flines, idfile=idfile)
 
-        print self.fname
-
         # Enforce that we pick a fit file, otherwise what would we plot?
-        while self.fname == None or self.fname == 'None':
+        while self.fname == None:
             choice = raw_input('No fit file entered, I need one to start. Run SFIT with current parameters, Select a new file, or quit? [r/s/q] >').lower()
             if choice == 'q':
                 exit()
@@ -82,21 +82,21 @@ class mplplotter():
         self.plotted_labels = []
 
         # Element list
-        self.elem = ['D' ,'H',                                                                       'He',
-                'Li','Be',                                                  'B' ,'C' ,'N' ,'O' ,'F' ,'Ne',
-                'Na','Mg',                                                  'Al','Si','P', 'S', 'Cl','Ar',
-                'K' ,'Ca','Sc','Ti','V' ,'Cr','Mn','Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr',
-                'Rb','Sr','Y' ,'Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I' ,'Xe',
-                'Cs','Ba',
-                'La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb','Lu',
-                               'Hf','Ta','W' ,'Re','Os','Ir','Pt','Au','Hg','Tl','Pb','Bi','Po','At','Rn',
-                'Fr','Ra',
-                'Ac','Th','Pa','U' ,'Np','Pu','Am','Cm','Bk','Cf','Es','Fm','Md','No','Lr',
-                               'Rf','Db','Sg','Bh','Hs','Mt','Ds','Rg','Cn','Uut','Fl','Uup','Lv','Uus','Uuo']
+        self.elem = ['D' ,'H',                                                                            'He',
+                     'Li','Be',                                                  'B' ,'C' ,'N' ,'O' ,'F' ,'Ne',
+                     'Na','Mg',                                                  'Al','Si','P', 'S' ,'Cl','Ar',
+                     'K' ,'Ca','Sc','Ti','V' ,'Cr','Mn','Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr',
+                     'Rb','Sr','Y' ,'Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I' ,'Xe',
+                     'Cs','Ba',
+                     'La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb','Lu',
+                                    'Hf','Ta','W' ,'Re','Os','Ir','Pt','Au','Hg','Tl','Pb','Bi','Po','At','Rn',
+                     'Fr','Ra',
+                     'Ac','Th','Pa','U' ,'Np','Pu','Am','Cm','Bk','Cf','Es','Fm','Md','No','Lr',
+                                    'Rf','Db','Sg','Bh','Hs','Mt','Ds','Rg','Cn','Uut','Fl','Uup','Lv','Uus','Uuo']
 
         # Get the original data
         self.input_data = self.read_data(self.fname, self.v, report=True)
-
+        
         #Setup the plotting zone
         self.spawn_plot()
 
@@ -106,8 +106,6 @@ class mplplotter():
 
         # Show it off
         mpl.show()
-
-        print 'Init successful!'
 
     def press(self, event):
     # Key commands
@@ -145,13 +143,24 @@ class mplplotter():
         # Pan left by a step size of <self.interval>
             current_window = self.ax.get_xlim()
             interval = self.interval
-            self.window(current_window[0]-interval, interval)
-            self.redraw()
+            if current_window[0]-interval >= self.input_data['wobs'][0]:
+                self.window(current_window[0]-interval, interval)
+                self.redraw()
         elif event.key == 'right':
         # Pan right
+            # t0 = time.clock()
             current_window = self.ax.get_xlim()
             interval = self.interval
-            self.window(current_window[0]+interval, interval)
+            if current_window[1] < self.input_data['wobs'][-1]:
+                self.window(current_window[0]+interval, interval)
+                self.redraw()
+                # print 'Shifting took %fs\n' % (time.clock() - t0)
+
+        elif event.key == 'w':
+            self.window(self.input_data['wobs'][0], self.interval)
+            self.redraw()
+        elif event.key == 'e':
+            self.window(self.input_data['wobs'][-1]-self.interval, self.interval)
             self.redraw()
 
         elif event.key == 'up':
@@ -170,39 +179,12 @@ class mplplotter():
             self.report_files()
 
         elif event.key == 'u':
-        # Make the run command, just in case it's been changed without me noticing
-            print 'Current directory:'
-            subprocess.Popen('pwd', preexec_fn=os.setsid)
-            time.sleep(0.1) # This has to be here, to stop the python script racing off ahead of bash.
-            run = 'Sfit.csh %s %s' % (self.finput, self.flines)
-
-            print 'Using the following command:\n %s' % self.run
-            cont = raw_input('Continue with this command? [y]/n').lower()
-            
-            if self.sfit.poll() >0:
-                # If this returns a value greater than 0, SFIT is running. Therefore, kill it.
-                print "SFIT is already running! Multiple instances messes with the output, please wait a few minutes for it to finish, or kill it with 'k'"
-            elif cont == 'y' or cont == '':
-                # Spawn a subprocess, start the program
-                self.sfit = subprocess.Popen(run.split(), preexec_fn=os.setsid)
-            else:
-                # User changed their mind
-                print 'Nevermind then...'  
+        # Run SFIT
+            self.run_sfit()
 
         elif event.key == 'k':
         # Kill a running SFIT process
-            print 'Attempting to kill SFIT...'
-            try:
-                os.killpg(os.getpgid(self.sfit.pid), signal.SIGTERM)
-                print 'Sent kill signal...'
-                time.sleep(0.3)
-                if self.sfit.poll() <= 0:
-                    print 'SFIT killed.'
-                else:
-                    print "Failed to kill SFIT! Here's the poll:"
-                    print self.sfit.poll()
-            except:
-                print 'Failed to even attempt to kill sfit! Thats weird, check the code...'
+            self.kill_sfit()
 
         elif event.key == 'l':
         # Toggles showing labels
@@ -212,12 +194,16 @@ class mplplotter():
 
         elif event.key == 'L':
         # Get new lines to label
-            print 'You currently label the following:'
-            i=0
-            for lines in self.idlines:
-                print '%2d - Z: %s / Thresh: %f' % (i, ', '.join(map(str, lines[2])), lines[3])
-                i += 1
             self.get_labels()
+
+        elif event.key == 'n':
+        # Open a new notepad
+            try:
+                self.root.destroy()
+            except:
+                True
+            self.root = Tkinter.Tk(className="Input file")
+            self.notepad()
 
         elif event.key.lower() == 'h':
             self.help()
@@ -236,12 +222,23 @@ class mplplotter():
         print "k - Kill SFIT, if it's running"
         print ''
         print 'left/right - Scan through the spectrum'
+        print 'w/e        - Skip to the beginning/end of the spectrum'
         print 'up/down    - Increase/decrease the window size'
-        print 'space - Print the current input files'
+        print 'space      - Print the current input files'
+        print ''
+        print 'n - Open a notepad with the SFIT input file loaded into it'
+        print 'Click on a location to print its values to the terminal'
         print ''
 
     def get_labels(self):
     # Takes a desired ion, and an eq. W threshold and appends a list to self.idlines() of the labels in the form [labels, locations]
+        if len(self.idlines) != 0:
+            print 'You currently label the following:'
+        i=0
+        for lines in self.idlines:
+            print '%2d - Z: %s / Thresh: %f' % (i, ', '.join(map(str, lines[2])), lines[3])
+            i += 1
+        
         idfile = self.idfile
         if idfile == '' or idfile == None:
             print 'No linefile entered!'
@@ -257,7 +254,7 @@ class mplplotter():
             return
 
         # To stop this script from wrecking the ram too much, read in only the lines that we actually want, rather than storing the whole damn thing
-        #       [Z ,IZ,WL]
+        #       [Z IZ, WL, input, threshold]
         lines = [[],[],desired,thresh]
         with open(idfile, 'r') as f:
             f.readline()
@@ -275,6 +272,7 @@ class mplplotter():
 
     def label_lines(self, xr):
     # Plots the labels contained in self.idlines(), which are in the window [xr]
+        #         [label, wav, color]
         to_plot = [[],[],[]]
         color = 'black'
 
@@ -296,10 +294,15 @@ class mplplotter():
         # Plot labels.
         size = self.fig.get_size_inches()*self.fig.dpi
         size = [float(x) for x in size]
-        txt_height = (20./size[1])*(self.ax.get_ylim()[1] - self.ax.get_ylim()[0])
-        txt_width  = (50./size[0])*(self.ax.get_xlim()[1] - self.ax.get_xlim()[0])
-        text_positions = self.get_text_positions(to_plot[1], [1.2 for x in to_plot[1]], txt_width, txt_height)
+        txt_height = (50./size[1])*(self.ax.get_ylim()[1] - self.ax.get_ylim()[0])
+        txt_width  = (15./size[0])*(self.ax.get_xlim()[1] - self.ax.get_xlim()[0])
+        text_positions = self.get_text_positions(to_plot[1], [1.1 for x in to_plot[1]], txt_width, txt_height)
         self.plotted_labels.append(self.text_plotter(to_plot[1], [1.0 for x in to_plot[1]], text_positions, self.ax, txt_width, txt_height, to_plot[0], to_plot[2]))
+
+    def clear_label_cache(self):
+        print 'Clearing label cache data!'
+        self.remove_labels()
+        self.idlines=[]
 
     def remove_labels(self):
     # Removes all labels from the plot
@@ -310,24 +313,33 @@ class mplplotter():
                 for l in j:
                     l.remove()
             self.plotted_labels = []
+            self.redraw()
         except:
             print 'Failed to remove lines!'
 
-    
     def get_text_positions(self, x_data, y_data, txt_width, txt_height):
     # Copypasted from stack exchange...
     # Works out how to put labels on the plot without them overlapping.
     # Returns a list of these postions that can be passed to the text_plotter function
         a = zip(y_data, x_data)
         text_positions = y_data
+
+
         for index, (y, x) in enumerate(a):
+            # Gets a list of the data that overlap the label we are considering
             local_text_positions = [i for i in a if i[0] > (y - txt_height) 
                                         and (abs(i[1] - x) < txt_width * 2) and i != (y,x)]
+
             if local_text_positions:
+                # Sort the positions, to make the positions line up better later
                 sorted_ltp = sorted(local_text_positions)
+
                 if abs(sorted_ltp[0][0] - y) < txt_height: #True == collision
+                    # differ is a list of the distances between the text boxes
                     differ = np.diff(sorted_ltp, axis=0)
+                    # edit the list of data, a, to shift the y data up by txt_height
                     a[index] = (sorted_ltp[-1][0] + txt_height, a[index][1])
+                    
                     text_positions[index] = sorted_ltp[-1][0] + txt_height
                     for k, (j, m) in enumerate(differ):
                         #j is the vertical distance between words
@@ -342,7 +354,12 @@ class mplplotter():
     # returns a list of the objects created, allowing manipulation of them later.
         holder = [[],[]]
         for x,y,t,l,col in zip(x_data, y_data, text_positions, text_labels,colors):
-            holder[0].append(axis.text(x - txt_width, 1.01*t, str(l),rotation=0, color=col))
+            holder[0].append(axis.text(x - (txt_width/2), t+txt_height, str(l),rotation=90, color=col))
+
+            # If the textheight goes above the plot's upper limit, rescale the axis to capture it. This significantly slows the redraw process
+            if t+txt_height > self.ax.get_ylim()[1]:
+                self.ax.set_ylim([0., t+txt_height])
+
             if y != t:
                 holder[1].append(axis.arrow(x, t,0,y-t, color='red',alpha=0.2, 
                             head_width=txt_width*0.2, head_length=txt_height*0.2, zorder=0,length_includes_head=True))
@@ -361,14 +378,16 @@ class mplplotter():
 
     def click(self, event):
     # When the user clicks on a point, report the values at that point.
-    # TODO: Have  asecond threshold for labelling lines, and when the user right-clicks,
+    # TODO: Have a second threshold for labelling lines, and when the user right-clicks,
     #  label extra lines about that point?
         if event.xdata != None and event.ydata != None:
             print 'Wavelength: %f\nFlux:       %f\n' % (event.xdata, event.ydata)
 
     def redraw(self):
     # I got sick of forgetting to prefix this with 'self' so I use this as a shorthand.
-        self.fig.canvas.draw()
+        # t0 = time.clock()
+        self.fig.canvas.draw_idle()
+        # print 'Drawing took %fs' % (time.clock() - t0)
 
     def refresh_data(self):
     # Re-reads in data, then populates the plot with it.
@@ -393,22 +412,28 @@ class mplplotter():
     # Takes a list of 5 filenames, and sill search the current directory for files
     #  that match the correct suffixes. 
     # Also allows for manual entry of names.
+
+        #Set up inital values. Is there a prettier way of doing this?
         if fname:
             fnames = [fname]
         else:
             fnames = ['None']
+
         if flines:
             fliness = [flines]
         else:
             fliness = ['No Linefile']
+
         if finput:
             finputs = [finput]
         else:
             finputs = ['No SFIT control file']
+
         if idfile:
             idfiles = [idfile]
         else:
             idfiles = ['No SPECTRUM line file']
+
         oint    = interval
         ov      = v
 
@@ -429,9 +454,10 @@ class mplplotter():
             
             fname = fnames[search]
             print 'fit file:   %s\n' % fname
+            time.sleep(1)
 
             #flines
-            for root, dirnames, filenames in os.walk('.', followlinks=True):
+            for root, dirnames, filenames in os.walk('..', followlinks=True):
                 for filename in fnmatch.filter(filenames, '*.lte'):
                     fliness.append(os.path.join(root,filename))
             fliness[1:] = sorted(fliness[1:])
@@ -445,6 +471,7 @@ class mplplotter():
             
             flines = fliness[search]
             print 'Line file:  %s\n' % flines
+            time.sleep(1)
 
             #finput
             for root, dirnames, filenames in os.walk('.', followlinks=True):
@@ -460,6 +487,7 @@ class mplplotter():
             
             finput = finputs[search]
             print 'Input file: %s\n' % finput
+            time.sleep(1)
 
             #spectrum file
             for root, dirnames, filenames in os.walk('.', followlinks=True):
@@ -475,6 +503,7 @@ class mplplotter():
             
             idfile = idfiles[search]
             print 'Spectrum output file: %s\n' % idfile
+            time.sleep(1)
 
 
 
@@ -518,6 +547,13 @@ class mplplotter():
         self.interval = float(interval)
         self.idfile = idfile
         self.v = float(v)
+
+        # Update the notepad with the new input file, if possible
+        try:
+            self.update_notepad(finput)
+            self.open_filename = finput
+        except:
+            True
 
         return(fname, flines, finput, float(interval), float(v))
 
@@ -580,7 +616,7 @@ class mplplotter():
 
         fig.canvas.set_window_title('SFIT plotting tool - Wild 2017')
         fig.subplots_adjust(left=0.05, bottom=0.13, right=0.98, top = 0.98, hspace=0.0)
-        fig.canvas.mpl_connect('key_press_event', self.press)
+        fig.canvas.mpl_connect('key_release_event', self.press)
         fig.canvas.mpl_connect('button_release_event', self.click)
 
         ax.set_ylim([0.,1.3])
@@ -589,7 +625,7 @@ class mplplotter():
         ax.xaxis.set_minor_formatter(FormatStrFormatter('%.1f'))
 
         ax.set_ylabel('Normalised Flux')
-        ax.set_xlabel('Wavelength ($\mathrm{\AA}$)')
+        ax.set_xlabel('Wavelength (A)')
 
         ax.axhline(y=1.0, alpha=0.3, color='black')
         obs, = ax.step([], [], color='black')
@@ -607,13 +643,12 @@ class mplplotter():
     # Takes a minimum lambda, which is the left side of the x axis, and a window size,
     # And a plot object. It then takes the wobs, fobs, and fgen and plots them.
 
+        # t0 = time.clock()
         #Get list of x range
         xx = self.input_data['wobs']
         yy1 = self.input_data['fobs']
         yy2 = self.input_data['fgen']
         xxrange = [float(minimum_wavelength), (float(minimum_wavelength)+float(window_size))]
-        old_ylim = self.ax.get_ylim()
-        old_xlim = self.ax.get_xlim()
         #Slice out the right data
         new_xx, new_yy1, new_yy2 = [], [], []
         for x,y,z in zip(xx,yy1, yy2):
@@ -628,6 +663,7 @@ class mplplotter():
 
         #Set range, pop data
         self.ax.set_xlim(xxrange)
+        self.ax.set_ylim([0., 1.3])
         self.obs = self.pop_data(xx, yy1, self.obs)
         self.fit = self.pop_data(xx, yy2, self.fit)
 
@@ -637,15 +673,171 @@ class mplplotter():
         # Label this section
         if self.labels_flag:
             self.label_lines(xxrange)
+        # print 'Window took %fs' % (time.clock() - t0)
+    
+    def run_sfit(self):
+    # Open a subprocess, and run SFIT in it. Also checks that there's no SFIT process already running.
+        # Make the run command, just in case it's been changed without me noticing
+        print 'Current directory:'
+        subprocess.Popen('pwd', preexec_fn=os.setsid)
+        time.sleep(0.1) # This has to be here, to stop the python script racing off ahead of bash.
+        run = 'Sfit.csh %s %s' % (self.finput, self.flines)
 
-        
+        self.report_files()
+        print 'Using the following command:\n %s' % self.run
+        cont = raw_input('Continue with this command? [y]/n >').lower()
+        # cont = 'y'
+
+        if self.sfit.poll() >0:
+            # If this returns a value greater than 0, SFIT is running. Therefore, kill it.
+            print "SFIT is already running! Multiple instances messes with the output, please wait a few minutes for it to finish, or kill it with 'k'"
+        elif cont == 'y' or cont == '':
+            # Spawn a subprocess, start the program
+            self.sfit = subprocess.Popen(run.split(), preexec_fn=os.setsid)
+        else:
+            # User changed their mind
+            print 'Nevermind then...'  
+
+    def kill_sfit(self):
+    # Kills SFIT, if it's running.
+        print 'Attempting to kill SFIT...'
+        try:
+            os.killpg(os.getpgid(self.sfit.pid), signal.SIGTERM)
+            print 'Sent kill signal...'
+            time.sleep(0.3)
+            if self.sfit.poll() <= 0:
+                print 'SFIT killed.'
+            else:
+                print "Failed to kill SFIT! Here's the poll:"
+                print self.sfit.poll()
+        except:
+            print 'Failed to even attempt to kill sfit! Thats weird, check the code...'
+
+
+    ### Functions for the notepad ###
+    def open_command(self):
+    # Open a dialogue box to get a file to push to the textpad
+            file = tkFileDialog.askopenfile(parent=self.root, mode='rb', initialfile=self.finput, title='Select a file', filetypes = (("SFIT files","*.sfit"),("all files","*.*")))
+            if file != None:
+                self.textPad.delete('1.0', END)
+                contents = file.read()
+                self.textPad.insert('1.0',contents)
+                file.close()
+                self.open_filename = file.name
+                self.root.title(self.open_filename.split('/')[-1])
+
+    def update_notepad(self, fname):
+    # When finput is changed, this function should be called to update the textpad contents
+        file = open(fname, 'r')
+        self.textPad.delete('1.0', END)
+        contents = file.read()
+        self.textPad.insert('1.0', contents)
+        file.close()
+        self.open_filename = fname
+        self.root.title(self.open_filename.split('/')[-1])
+
+    def saveas_command(self):
+    # Save the content to a file, which we get the user to choose from a dialogue box
+        file = tkFileDialog.asksaveasfile(mode='w', parent = self.root, initialfile=self.finput, filetypes = (("SFIT files","*.sfit"),("all files","*.*")))
+        # print file
+        if file != None:
+        # slice off the last character from get, as an extra return is added
+            data = self.textPad.get('1.0', END+'-1c')
+            file.write(data)
+            file.close()
+
+    def save_command(self):
+    # Save to the filename stored in self.open_filename
+        file = open(self.open_filename, 'w')
+        if file != None:
+        # slice off the last character from get, as an extra return is added
+            data = self.textPad.get('1.0', END+'-1c')
+            file.write(data)
+            file.close()
+            
+    def exit_command(self):
+    # Close the textpad. Also ask if they want to close the whole script.
+        askuser = tkMessageBox.askquestion("Quit", "Close everything?")
+        if askuser == 'yes':
+            mpl.close()
+            try:
+                os.killpg(os.getpgid(self.sfit.pid), signal.SIGTERM)
+                print 'SFIT process killed'
+            except:
+                if self.sfit.poll() > 0:
+                    print 'I failed to kill SFIT. Is it still running?'
+        self.root.destroy()
+
+    def new_file(self):
+    # Open a new file
+        file = tkFileDialog.asksaveasfilename(initialdir='.', parent=self.root, filetypes = (("SFIT files","*.sfit"),("all files","*.*")), title='Create new .sfit file')
+        self.open_filename = self.finput
+
+    def enableLabel(self):
+        self.labels_flag = not self.labels_flag
+        self.refresh_data()
+        self.redraw()
+
+    def print_label_cache(self):
+    # Print the labels that are stored in self.idlines
+        if len(self.idlines) != 0:
+            print 'You currently label the following:'
+        else:
+            print 'No labels in the cache'
+        i=0
+        for lines in self.idlines:
+            els = map(int, lines[2])
+            els = [self.elem[i] for i in els]
+            print els
+            print '%2d - Z: %s / Thresh: %f' % (i, ', '.join(map(str, lines[2])), lines[3])
+            i += 1
+
+    def save_and_run_sfit(self):
+        self.save_command()
+        self.run_sfit()
+
+    def notepad(self, file=None):
+    # Add in a lightweight text editor to edit the .sfit file
+        self.textPad = ScrolledText(self.root, width=60, height=50)
+        self.open_filename = ''
+
+        # Open the input file
+        if self.finput != None:
+            file = open(self.finput, 'r')
+            contents = file.read()
+            self.textPad.insert('1.0',contents)
+            file.close()
+            self.open_filename = self.finput
+
+        self.root.title(self.open_filename.split('/')[-1])
+
+        menu = Menu(self.root)
+        self.root.config(menu=menu)
+        filemenu = Menu(menu)
+        menu.add_cascade(label="File", menu=filemenu)
+        filemenu.add_command(label="New", command=self.new_file)
+        filemenu.add_command(label="Open...", command=self.open_command)
+        filemenu.add_command(label='Save', command=self.save_command)
+        filemenu.add_command(label="Save As", command=self.saveas_command)
+
+        sfitmenu = Menu(menu)
+        menu.add_cascade(label='SFIT', menu=sfitmenu)
+        sfitmenu.add_command(label='Print Files', command=self.report_files)
+        sfitmenu.add_command(label='Re-enter Files', command=lambda: self.get_files(finput=finput, fname=fname, flines=flines, idfile=idfile))
+        sfitmenu.add_command(label='Run SFIT', command=self.save_and_run_sfit)
+        sfitmenu.add_command(label='Kill SFIT', command=self.kill_sfit)
+
+        idlinesmenu = Menu(menu)
+        menu.add_cascade(label='IDlines', menu=idlinesmenu)
+        idlinesmenu.add_command(label='Toggle labels', command=self.enableLabel)
+        idlinesmenu.add_separator()   
+        idlinesmenu.add_command(label='Label new element', command=self.get_labels)
+        idlinesmenu.add_command(label='Print label cache', command=self.print_label_cache)
+        idlinesmenu.add_command(label='Clear label cache', command=self.clear_label_cache)
+
+        self.textPad.pack(fill=BOTH, side=LEFT)
+        self.root.mainloop()
+
 ########################### MAIN ############################################
 
-#Default values. If none are supplied, they will be asked for.
-fname = 'norm_fuv_tyc5331.dat.fit'
-flines = '../linefiles/gf1117_K16.lte'
-finput = 'FUVsynthInput.sfit'
-idfile = './Lines/UVO_FUV_lines.000'
-
-# plotter = mplplotter(fname=fname, flines=flines, finput=finput, idfile=idfile)
 plotter = mplplotter()

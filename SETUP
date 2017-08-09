@@ -3,10 +3,13 @@
 echo "Make sure you sun this script as sudo!"
 echo "Creating Symbolic links in the bin..."
 
+## Change this to your bin!! ##
 BIN='/usr/local/bin'
+
 WILDLINES=$PWD
 echo "Creating symbolic links to current folder," $WILDLINES
 
+# Make all the files executable
 sudo chmod +x ./*
 
 ln -sf $WILDLINES/checklines.py      $BIN/checklines
@@ -27,5 +30,6 @@ echo "- read_TOSS"
 echo "- read_VALD"
 echo "--> These take the outputs from the relevant websites (see comments of each script for details) and converts to .lte format"
 echo ""
-echo "quickplot  - Reads a spectrum file, or any file separated into columns, and plots it in a publication-style plot"
+echo "quickplot   - Reads a spectrum file, or any file separated into columns, and plots a given section of it in a publication-style plot"
+echo "plot_balmer - Reads a spectrum, and generates plots of it's balmer lines. Can write to screen or a file"
 echo "reportlines - Reads and summarises a .lte file"
