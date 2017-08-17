@@ -4,7 +4,7 @@ echo "Make sure you sun this script as sudo!"
 echo "Creating Symbolic links in the bin..."
 
 ## Change this to your bin!! ##
-BIN='/usr/local/bin'
+BIN='/bin'
 
 WILDLINES=$PWD
 echo "Creating symbolic links to current folder," $WILDLINES
