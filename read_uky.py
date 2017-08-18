@@ -1,6 +1,22 @@
 #!/usr/bin/env python
 # Reads in Kentucky data
 # http://www.pa.uky.edu/~peter/newpage/
+#Ensure that you click the 'exclude lines without atomic data' box (or the form will 
+#  fetch a load of lines with poor wavelengths and no gf values) and that you've 
+#  selected eV as the energy units.
+#Output Format:
+# [ ] Wavelength Accuracy
+# [X] Spectrum
+# [ ] Transition Type
+# [ ] Configuration
+# [ ] Term
+# [ ] Angular Momentum ( ) as J ( ) as g ( ) combine with term
+# [X] Transition Probability [ ] as Aki [ ] As gAki [ ] As f_ik [ ] as S [X] as log(gf)
+# [X] Level Energies
+# Output Mode: (o) plain
+# 
+# The top line of the data should be:
+# -LAB-WAVL-ANG-VAC-|-SPECTRUM-|TT|-lg(gf)-|-TPF-|-----LEVEL-ENERGY--EV------|-REF---|
 
 import numpy as np
 
@@ -31,31 +47,16 @@ def roman_to_int(input):
    return sum
 
 def ann_format():
+    print "Using the following website: http://www.pa.uky.edu/~peter/newpage/"
 	print "Ensure that you click the 'exclude lines without atomic data' box (or the form will fetch a load of lines with poor wavelengths and no gf values) and that you've selected eV as the energy units."
 	print "\nOutput Format:\n[ ] Wavelength Accuracy\n[X] Spectrum\n[ ] Transition Type\n[ ] Configuration\n[ ] Term\n[ ] Angular Momentum ( ) as J ( ) as g ( ) combine with term\n[X] Transition Probability [ ] as Aki [ ] As gAki [ ] As f_ik [ ] as S [X] as log(gf)\n[X] Level Energies\nOutput Mode: (o) plain"
 	print ""
 	print "The top line of the data should be:"
 	print "-LAB-WAVL-ANG-VAC-|-SPECTRUM-|TT|-lg(gf)-|-TPF-|-----LEVEL-ENERGY--EV------|-REF---|"
 
-#Ensure that you click the 'exclude lines without atomic data' box (or the form will 
-#  fetch a load of lines with poor wavelengths and no gf values) and that you've 
-#  selected eV as the energy units.
-#Output Format:
-# [ ] Wavelength Accuracy
-# [X] Spectrum
-# [ ] Transition Type
-# [ ] Configuration
-# [ ] Term
-# [ ] Angular Momentum ( ) as J ( ) as g ( ) combine with term
-# [X] Transition Probability [ ] as Aki [ ] As gAki [ ] As f_ik [ ] as S [X] as log(gf)
-# [X] Level Energies
-# Output Mode: (o) plain
-# 
-# The top line of the data should be:
-# -LAB-WAVL-ANG-VAC-|-SPECTRUM-|TT|-lg(gf)-|-TPF-|-----LEVEL-ENERGY--EV------|-REF---|
-
 while True:
 	try:
+        ann_format()
 		file = raw_input('Enter filename: ')
 		open(file,'r')
 		break

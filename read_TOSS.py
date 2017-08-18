@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# http://dc.g-vo.org/TOSS
+# Takes .csv data from the above form, and converts it to .lte format
+# 
 
 def roman_to_int(input):
 # Takes a string numeral and converts it to integer
@@ -42,8 +45,6 @@ elem = ['D' ,'H',                                                               
 
 
 file = raw_input('Enter Filename (default to raw_tubingen): ')
-if file == '':
-	file = 'raw_tubingen'
 
 data = []
 #  Lambda [A] | Z | I | log(gf) | gA [1e9 s&-1] | E_init [cm^-1] | - | J_i | E_final [cm^-1] | - | J_f | Ref
