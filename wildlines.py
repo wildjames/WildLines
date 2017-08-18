@@ -49,7 +49,7 @@ class mplplotter():
         self.get_files(finput=finput, fname=fname, flines=flines, idfile=idfile)
 
         # Enforce that we pick a fit file, otherwise what would we plot?
-        while self.fname == None:
+        while self.fname == None or self.fname == 'None':
             choice = raw_input('No fit file entered, I need one to start. Run SFIT with current parameters, Select a new file, or quit? [r/s/q] >').lower()
             if choice == 'q':
                 exit()
@@ -59,9 +59,6 @@ class mplplotter():
                 else:
                     run = 'Sfit.csh %s %s' % (self.finput, self.flines)
                     print '\nUsing the command:\n'+run+'\n'
-                    # Let the user process what their input is
-                    time.sleep(2)
-
                     self.sfit = subprocess.Popen(run.split(), preexec_fn=os.setsid)
                     # Wait for SFIT to finish, then ask the user for files again.
                     self.sfit.wait()
