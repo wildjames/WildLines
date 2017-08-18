@@ -3,7 +3,7 @@
 # http://www.pa.uky.edu/~peter/newpage/
 
 import numpy as np
-import sys
+
 def roman_to_int(input):
    if type(input) != type(""):
       raise TypeError, "expected string, got %s" % type(input)
@@ -71,7 +71,7 @@ with open(file,'r') as f:
 		ann_format()
 		print 'your top line is:'
 		print a
-		sys.exit()
+		exit()
 	l = 0
 	for line in f:
 		data.append(line.split())

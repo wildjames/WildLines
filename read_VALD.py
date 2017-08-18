@@ -28,10 +28,11 @@ data = []
 line = ''
 i=0
 with open(file, 'r') as f:
+    # Check that the top line is of the correct format. This may need to be tweaked with updates to VALD.
     f.readline()
     if f.readline() != 'Elm Ion       WL_vac(A) Excit(eV) log gf*   Rad.  Stark    Waals factor  References\n':
     	print 'Incorrect format.'
-    	sys.exit()
+    	exit()
     for line in f:
         try:
         	elem.index(line.split(',')[0][1:3])

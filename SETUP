@@ -4,7 +4,9 @@ echo "Make sure you sun this script as sudo!"
 echo "Creating Symbolic links in the bin..."
 
 ## Change this to your bin!! ##
-BIN='/bin'
+BIN='${HOME}/bin'
+
+mkdir $BIN
 
 WILDLINES=$PWD
 echo "Creating symbolic links to current folder," $WILDLINES
@@ -12,6 +14,7 @@ echo "Creating symbolic links to current folder," $WILDLINES
 # Make all the files executable
 sudo chmod +x ./*
 
+# Create symbolic links
 ln -sf $WILDLINES/checklines.py      $BIN/checklines
 ln -sf $WILDLINES/quickplot.py       $BIN/quickplot
 ln -sf $WILDLINES/read_kurucz.py     $BIN/read_kurucz
@@ -22,6 +25,80 @@ ln -sf $WILDLINES/reportlines.py     $BIN/reportlines
 ln -sf $WILDLINES/wildlines.py       $BIN/wildlines
 ln -sf $WILDLINES/plot_balmer.py     $BIN/plot_balmer
 
+# Check for python dependancies
+python -c 'import numpy'
+if [ $? = 1 ]; then
+    sudo -H pip install numpy
+else
+    echo "Numpy is installed!"
+fi
+
+python -c 'import matplotlib'
+if [ $? = 1 ]; then
+    sudo -H pip install matplotlib
+else
+    echo "Matplotlib is installed!"
+fi
+
+python -c 'import os'
+if [ $? = 1 ]; then
+    sudo -H pip install os
+else
+    echo "os is installed!"
+fi
+
+python -c 'import signal'
+if [ $? = 1 ]; then
+    sudo -H pip install signal
+else
+    echo "signal is installed!"
+fi
+
+python -c 'import subprocess'
+if [ $? = 1 ]; then
+    sudo -H pip install subprocess
+else
+    echo "subprocess is installed!"
+fi
+
+python -c 'import fnmatch'
+if [ $? = 1 ]; then
+    sudo -H pip install fnmatch
+else
+    echo "fnmatch is installed!"
+fi
+
+python -c 'import time'
+if [ $? = 1 ]; then
+    sudo -H pip install time
+else
+    echo "time is installed!"
+fi
+
+python -c 'import Tkinter'
+if [ $? = 0 ]; then
+    echo -e "\e[7m\e[5mYou don't have Tkinter installed! Please go get it!"
+    echo -e "http://www.greenteapress.com/thinkpython/swampy/install.html\e[0m"
+else
+    echo "Tkinter is installed!"
+fi
+
+python -c 'import ScrolledText'
+if [ $? = 1 ]; then
+    sudo -H pip install 
+else
+    echo "ScrolledText is installed!"
+fi
+
+python -c 'import cycler'
+if [ $? = 1 ]; then
+    sudo -H pip install 
+else
+    echo "cycler is installed!"
+fi
+
+
+# Print a bit of help for the user.
 echo ""
 echo "If you got no error messages, you should now have the follwoing commands:"
 echo "- read_kurucz"

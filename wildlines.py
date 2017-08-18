@@ -1,22 +1,23 @@
 #!/usr/bin/env python
 
-import matplotlib.pyplot as mpl
 import numpy as np
-from matplotlib.ticker import FormatStrFormatter
-from matplotlib.widgets import Slider, Button, RadioButtons
 import os
 import signal
 import subprocess
 import fnmatch
-from matplotlib import rc
 import time
-import Tkinter
-from Tkinter import *
+
+import matplotlib.pyplot as mpl
+from matplotlib.ticker import FormatStrFormatter
+from matplotlib.widgets import Slider, Button, RadioButtons
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from ScrolledText import *
+from matplotlib import rc
+
+from Tkinter import *
 import tkFileDialog
 import tkMessageBox
 import threading
+from ScrolledText import *
 
 class mplplotter():
 
@@ -202,7 +203,7 @@ class mplplotter():
                 self.root.destroy()
             except:
                 True
-            self.root = Tkinter.Tk(className="Input file")
+            self.root = Tk(className="Input file")
             self.notepad()
 
         elif event.key.lower() == 'h':

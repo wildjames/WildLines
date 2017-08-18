@@ -13,6 +13,7 @@ import numpy as np
 from matplotlib import rc
 import time
 import os
+
 # Alter rcparams to make the font not look as terrible, and enable latex.
 rc('font', **{'family':'serif','serif':['Palatino'],'size':10})
 rc('text', usetex=True)
