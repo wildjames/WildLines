@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Reads data from the Vienna Atomic Line Databas (VALD) 
+# Reads data from the Vienna Atomic Line Databas (VALD) http://vald.astro.uu.se/
 #
 #### Make sure that you use the following parameters!
 # begin request
@@ -27,12 +27,21 @@ elem = ['','H ','He','Be','Li','B ','C ','N ','O ','F ','Ne','Na','Mg','Al','Si'
 data = []
 line = ''
 i=0
+flag = True
 with open(file, 'r') as f:
     # Check that the top line is of the correct format. This may need to be tweaked with updates to VALD.
-    f.readline()
-    if f.readline() != 'Elm Ion       WL_vac(A) Excit(eV) log gf*   Rad.  Stark    Waals factor  References\n':
-    	print 'Incorrect format.'
-    	exit()
+    while flag:
+        line = f.readline().split()
+        print line
+        # if line == ['Elm', 'Ion', 'WL_vac(A)',        'Excit(eV)','log','gf*','Rad.','Stark','Waals','factor','References']:
+
+
+        if line[:2] == ['Elm','Ion'] and line[3:] == ['Excit(eV)','log','gf*','Rad.','Stark','Waals','factor','References']:
+            flag = False
+        if line == []:
+            print "Couldn't read the file!"
+            flag = False
+
     for line in f:
         try:
         	elem.index(line.split(',')[0][1:3])
