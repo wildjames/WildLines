@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# TODO: add in functionality for generating a STERNE model??
 
 import numpy as np
 import os
@@ -458,7 +459,7 @@ class mplplotter():
             time.sleep(1)
 
             #flines
-            for root, dirnames, filenames in os.walk('..', followlinks=True):
+            for root, dirnames, filenames in os.walk('.', followlinks=True):
                 for filename in fnmatch.filter(filenames, '*.lte'):
                     fliness.append(os.path.join(root,filename))
             fliness[1:] = sorted(fliness[1:])
