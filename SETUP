@@ -4,8 +4,7 @@ echo "Make sure you sun this script as sudo!"
 echo "Creating Symbolic links in the bin..."
 
 ## Change this to your bin!! ##
-BIN='~/WildCodesBin'
-
+BIN="$HOME/WildCodesBin"
 mkdir $BIN
 
 WILDLINES=$PWD
@@ -76,7 +75,7 @@ else
 fi
 
 python -c 'import Tkinter'
-if [ $? = 0 ]; then
+if [ $? = 1 ]; then
     echo -e "\e[7m\e[5mYou don't have Tkinter installed! Please go get it!"
     echo -e "http://www.greenteapress.com/thinkpython/swampy/install.html\e[0m"
 else
@@ -110,3 +109,5 @@ echo ""
 echo "quickplot   - Reads a spectrum file, or any file separated into columns, and plots a given section of it in a publication-style plot"
 echo "plot_balmer - Reads a spectrum, and generates plots of it's balmer lines. Can write to screen or a file"
 echo "reportlines - Reads and summarises a .lte file"
+echo ''
+echo -e "\e[7m\e[5mMake sure you remember to add ~/WildCodesBin to your path!!!\e[0m"
