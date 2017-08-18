@@ -1,11 +1,25 @@
 #!/usr/bin/env python
 # Reads in the Kurucz database, and converts it to a .lte file with given constraints.
+# Accepts any 'gf*' or 'hy*' kurucz file
 
 import numpy as np
+import os
 
-file = 'gfallvac21oct16.dat.txt'
+file = raw_input('Enter a Kurucz filename: ')
+if not os.path.isfile(file):
+	print "That file doesn't exist! Try again..."
+	exit()
+max = 1.0
+min = 10000000
+with open(file, 'r') as f:
+	for line in f:
+		wl = (float(line[0:11])*10)
+		if wl > max:
+			max = wl
+		if wl < min:
+			min = wl
 
-s = 'Enter min wavelength (range from 19A to 9960160A): '
+s = 'Enter min wavelength (range from %.0fA to %.0fA): ' % (min, max)
 min = float(input(s))
 max = float(input('Enter max wavelength: '))
 air = raw_input('Air or vacuum? (a/v): ')
@@ -20,7 +34,18 @@ with open(file, 'r') as f:
 	for line in f:
 		data.append(line)
 
-elem = ['','H','He','Be','Li','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar','K','Ca','Sc','Ti','V','Cr','Mn','Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y','Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I','Xe','Cs','Ba','La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb','Lu','Hf','Ta','W','Re','Os','Ir','Pt','Au','Hg','Tl','Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th','Pa','U']
+# Element list
+elem = ['D' ,'H',                                                                            'He',
+        'Li','Be',                                                  'B' ,'C' ,'N' ,'O' ,'F' ,'Ne',
+        'Na','Mg',                                                  'Al','Si','P', 'S' ,'Cl','Ar',
+        'K' ,'Ca','Sc','Ti','V' ,'Cr','Mn','Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr',
+        'Rb','Sr','Y' ,'Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I' ,'Xe',
+        'Cs','Ba',
+        'La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb','Lu',
+                       'Hf','Ta','W' ,'Re','Os','Ir','Pt','Au','Hg','Tl','Pb','Bi','Po','At','Rn',
+        'Fr','Ra',
+        'Ac','Th','Pa','U' ,'Np','Pu','Am','Cm','Bk','Cf','Es','Fm','Md','No','Lr',
+                       'Rf','Db','Sg','Bh','Hs','Mt','Ds','Rg','Cn','Uut','Fl','Uup','Lv','Uus','Uuo']
 
 Z = 0
 io = 0
@@ -32,13 +57,17 @@ out = []
 
 temp = [[],[]]
 for i in data:
+	#Read in the ion code
 	temp = i[18:24].split('.')
+	# Comvert wavelength to angstroms
 	w = float(i[0:11])*10
 	# Do not include H/He data since it causes conflicts.
 	if w < max and w > min:
 		if int(temp[0])!=1:
 			if int(temp[0])!=2:
+				# If the ion is desired, use it
 				if int(temp[0])<zmax:
+					# Parse data
 					wl = (float(i[0:11])*10)
 					gf = (float(i[11:18]))
 					damp[0] = (float(i[86:92]))
@@ -54,7 +83,7 @@ for i in data:
 					out.append([Z,io,wl,gf,damp[0],damp[1],damp[2],ex,0.0,'Kurucz_2016'])
 
 
-outfile = 'gf'+str(int(min/100))+str(int(max/100))+air+'_LiZn_K16.lte'
+outfile = 'gf'+str(int(min/100))+str(int(max/100))+air+'.lte'
 with open(outfile, 'w') as f:
     for i in range(len(out)):
 		temp = out[i]

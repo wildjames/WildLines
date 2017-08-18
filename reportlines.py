@@ -45,7 +45,7 @@ with open(file,'r') as f:
 		except ValueError:
 			k += 1
 			print line
-			print "There's a formatting error here I can't read! Please fix it <3"
+			print "There's a formatting error here I can't read! Please fix it"
 
 if k>0:
 	print '\nI couldnt read %d lines of the file!' % k
@@ -96,7 +96,11 @@ if pr == 1 or pr == 3:
 	print '-------------------------------------------'
 	for i in range(len(Z)):
 		if Z[i] != 0:
-			print('%2d | %2s | %-8d | %6.2f%% ' % (i, elem[i], Z[i], (100.0*bad_damp[i]/Z[i]) ))
+			try:
+				totBadDamp = (100.0*bad_damp[i]/Z[i])
+			except ZeroDivisionError:
+				totBadDamp = 0.
+			print('%2d | %2s | %-8d | %6.2f%% ' % (i, elem[i], Z[i], totBadDamp ))
 	print('-------------------------')
 	print('Total : | %-8d | %3.2f%% ' % (sum(Z), (100*sum(bad_damp)/sum(Z)) ))
 if pr == 2 or pr == 3:

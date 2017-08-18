@@ -4,7 +4,7 @@ echo "Make sure you sun this script as sudo!"
 echo "Creating Symbolic links in the bin..."
 
 ## Change this to your bin!! ##
-BIN='${HOME}/bin'
+BIN='~/WildCodesBin'
 
 mkdir $BIN
 
