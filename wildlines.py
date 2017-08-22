@@ -50,7 +50,7 @@ class mplplotter():
 
         # Enforce that we pick a fit file, otherwise what would we plot?
         while self.fname == None or self.fname == 'None':
-            choice = raw_input('No fit file entered, I need one to start. Run SFIT with current parameters, Select a new file, or quit? [r/s/q] >').lower()
+            choice = raw_input('No fit file entered, I need one to start. Run SFIT with current parameters, Select a new file, or quit? [r/s/q] > ').lower()
             if choice == 'q':
                 exit()
             elif choice == 'r':
@@ -62,13 +62,13 @@ class mplplotter():
                     self.sfit = subprocess.Popen(run.split(), preexec_fn=os.setsid)
                     # Wait for SFIT to finish, then ask the user for files again.
                     self.sfit.wait()
-                    self.get_files()
+                    self.get_files(fname=self.fname, flines=self.flines, finput=self.finput, idfile=self.idfile, interval=self.interval, v=self.v)
             elif choice == 's':
-                self.get_files()
+                self.get_files(fname=self.fname, flines=self.flines, finput=self.finput, idfile=self.idfile, interval=self.interval, v=self.v)
 
         #Initialise the subprocess for SFIT
         if self.finput != None and self.flines != None:
-            self.run = 'sfit.csh %s %s' % (self.finput, self.flines)
+            self.run = 'Sfit.csh %s %s' % (self.finput, self.flines)
             self.sfit = subprocess.Popen('echo SFIT initialised'.split())
             self.sfit.wait()
             print '\nUsing the command:\n'+self.run+'\n'
@@ -204,6 +204,9 @@ class mplplotter():
             self.root = Tk(className="Input file")
             self.notepad()
 
+        elif event.key == 'f':
+            self.get_files(fname=self.fname, flines=self.flines, finput=self.finput, idfile=self.idfile, interval=self.interval, v=self.v)
+
         elif event.key.lower() == 'h':
             self.help()
 
@@ -219,6 +222,7 @@ class mplplotter():
         print ''
         print 'u - Run SFIT'
         print "k - Kill SFIT, if it's running"
+        print "f - Re-enter files for SFIT to use"
         print ''
         print 'left/right - Scan through the spectrum'
         print 'w/e        - Skip to the beginning/end of the spectrum'
@@ -679,24 +683,20 @@ class mplplotter():
         # Make the run command, just in case it's been changed without me noticing
         print 'Current directory:'
         subprocess.Popen('pwd', preexec_fn=os.setsid)
-        time.sleep(0.1) # This has to be here, to stop the python script racing off ahead of bash.
-        run = 'Sfit.csh %s %s' % (self.finput, self.flines)
+        time.sleep(0.2) # This has to be here, to stop the python script racing off ahead of bash. Hopefully, the user won't be able to notice this.
+        self.run = 'Sfit.csh %s %s' % (self.finput, self.flines)
 
         self.report_files()
         print 'Using the following command:\n %s' % self.run
-        cont = raw_input('Continue with this command? [y]/n >').lower()
-        # cont = 'y'
+        time.sleep(1)
 
         if self.sfit.poll() >0:
             # If this returns a value greater than 0, SFIT is running. Therefore, kill it.
             print "SFIT is already running! Multiple instances messes with the output, please wait a few minutes for it to finish, or kill it with 'k'"
-        elif cont == 'y' or cont == '':
-            # Spawn a subprocess, start the program
-            self.sfit = subprocess.Popen(run.split(), preexec_fn=os.setsid)
         else:
-            # User changed their mind
-            print 'Nevermind then...'  
-
+            # Spawn a subprocess, start the program
+            self.sfit = subprocess.Popen(self.run.split(), preexec_fn=os.setsid)
+        
     def kill_sfit(self):
     # Kills SFIT, if it's running.
         print 'Attempting to kill SFIT...'
@@ -818,12 +818,14 @@ class mplplotter():
         filemenu.add_command(label="Open...", command=self.open_command)
         filemenu.add_command(label='Save', command=self.save_command)
         filemenu.add_command(label="Save As", command=self.saveas_command)
+        filemenu.add_separator()
+        filemenu.add_command(label="Help", command=self.help)
 
         sfitmenu = Menu(menu)
         menu.add_cascade(label='SFIT', menu=sfitmenu)
         sfitmenu.add_command(label='Print Files', command=self.report_files)
-        sfitmenu.add_command(label='Re-enter Files', command=lambda: self.get_files(finput=finput, fname=fname, flines=flines, idfile=idfile))
-        sfitmenu.add_command(label='Run SFIT', command=self.save_and_run_sfit)
+        sfitmenu.add_command(label='Re-enter Files', command=lambda: self.get_files(finput=self.finput, fname=self.fname, flines=self.flines, idfile=self.idfile))
+        sfitmenu.add_command(label='Save & Run SFIT', command=self.save_and_run_sfit)
         sfitmenu.add_command(label='Kill SFIT', command=self.kill_sfit)
 
         idlinesmenu = Menu(menu)

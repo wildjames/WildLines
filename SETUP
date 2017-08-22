@@ -22,7 +22,7 @@ ln -sf $WILDLINES/read_uky.py        $BIN/read_uky
 ln -sf $WILDLINES/read_VALD.py       $BIN/read_VALD
 ln -sf $WILDLINES/reportlines.py     $BIN/reportlines
 ln -sf $WILDLINES/wildlines.py       $BIN/wildlines
-ln -sf $WILDLINES/plot_balmer.py     $BIN/plot_balmer
+ln -sf $WILDLINES/plotSpecLines.py   $BIN/plotSpecLines
 
 # Check for python dependancies
 python -c 'import numpy'

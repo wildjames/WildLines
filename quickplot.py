@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter
 from matplotlib import rc
 from cycler import cycler
+import os
 
 # Alter rc parameters
 rc('text', usetex=True)
@@ -27,6 +28,10 @@ yyrange = [0.0, 1.2]
 ### FONT SIZE! IF YOU CHANGE THE FIGSIZE DRAMATICALLY, YOU PROBABLY WANT TO CHANGE THIS TOO
 rc('font', **{'family':'sans','serif':['DejaVu'],'size':11})
 
+## USER ENTERED FIGURE SIZE ##
+# figsize = raw_input('Please enter the desired size (width  height) of the figure (in inches, space separated): ').split()
+# plt.rcParams["figure.figsize"] = (figsize[0], figsize[1]) # User size
+##############################
 
 ## Set up the plotting area to look nice
 fig, ax = plt.subplots()

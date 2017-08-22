@@ -6,6 +6,7 @@
 #  and plot them on the same axis (offset progressively up) for comparison.
 # Writes out to file, if you want
 # To plot custom things, go to line 164
+# TODO: MAKE THIS TAKE AN INPUT FILE???
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter
@@ -13,7 +14,7 @@ import numpy as np
 from matplotlib import rc
 import time
 import os
-from balmerPlotLib import *
+from LinesPlotLib import *
 
 # Get the filename
 fname = raw_input('Please enter a spectrum file: ')
@@ -52,8 +53,27 @@ Hlabels = [r'H$\epsilon$',
 		   r'H$\alpha$'
 		]
 
+PGlines =  [1755.00,
+            1313.10,
+            2355.26,
+            1251.39,
+            1494.89,
+            1500.61
+        ]
+
+PGLabels = [r'Pb IV 1755.0$\AA$',
+            r'Pb IV 1313.1$\AA$',
+            r'Ba II 2335.3$\AA$',
+            r'Sn III 1251.4$\AA$',
+            r'Ge IV 1494.9$\AA$',
+            r'Ge IV 1500.6$\AA$'
+            ]
+
+generate_plots(PGlines, 'pg0909_Pb-Ba-Sn-Ge.fit', oname='PG0909+276_exotic_metals', N=6, labels=PGLabels, out='y')
+
 # Generate the plots.
-generate_plots(Hlines, fname, oname=oname+'_Balmer-', N=5, labels=Hlabels, out=out)
+# generate_plots(Hlines, fname, oname=oname+'_Balmer-', N=5, labels=Hlabels, out=out)
+# print 'Done balmer...'
     ### USAGE:
     ##  <lines>      - List of lines to plot
     ##  <fname>      - Spectrum filename.
@@ -67,6 +87,5 @@ generate_plots(Hlines, fname, oname=oname+'_Balmer-', N=5, labels=Hlabels, out=o
     ##  [text_shift] - fractional shift inwards from the negative x axis limit
     ##  [out]        - y/n do we print to file? Default no.
     # Retrieve observations and model
-print 'Done balmer...'
 
 print 'Finished!'
