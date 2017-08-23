@@ -128,6 +128,7 @@ def generate_plots(lines, fname, wr=20, title=None, oname='out', N=6, labels=Non
                         fmin = pfo[-1]
             plt.step(pwl, pfo, color='black')
 
+
         plt.annotate(label,
                       xy=(text_pos,1.1+s),
                       xytext=(text_pos, 1.1+s)
