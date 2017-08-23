@@ -70,7 +70,7 @@ class lplinterp():
             print 'Command: <%s>' % (command)
 
         if command == 'echo':
-            self.echo = (instruction[0].lower() == 'on' or instruction[0].lower() == 'true' or int(instruction[0]) == 1)
+            self.echo = (instruction[0].lower() == 'on' or instruction[0].lower() == 'true' or instruction[0] == '1')
 
         elif command == 'lines':
             self.read_lines()
@@ -79,7 +79,7 @@ class lplinterp():
                 for i in self.lines:
                     print i
 
-        elif command == 'cols':
+        elif command == 'cols' or command == 'col':
             # Ugly code. Think of a better way of doing this... Might take some work though.
 
             self.col1, self.col2, self.col3, self.col4 = [None, None, None, None]
@@ -182,13 +182,22 @@ class lplinterp():
         # Read in numbers from the file until we find an empty line.
         # Clear the current lines and labels lists.
         self.lines = []
-        line = self.commandfile.readline().strip()
+        
+        # Read in first line
+        oline = self.commandfile.readline().strip()
+        line  = oline.split('!')[0]
         self.i += 1 
-        while line != '':
+        
+        # While the line is NOT blank (blank line is a terminator) OR the line has comments in it,
+        #  keep reading in data.
+        while line != '' or len(oline.split('!')) != 1:
             try:
-                self.lines.append(float(line))
-                line = self.commandfile.readline().strip()
+                if line != '':
+                    self.lines.append(float(line))
+                oline = self.commandfile.readline().strip()
+                line = oline.split('!')[0]
                 self.i += 1
+                print oline.split('!')
             except ValueError:
                 print 'There was an error reading in your line wavelengths!'
                 print 'Error was on line %d\n%s' % (self.i, line)
@@ -196,25 +205,42 @@ class lplinterp():
 
     def read_labels(self):
         # Read in the labels from the file until we find an empty line
-        line = self.commandfile.readline().strip()
+        oline = self.commandfile.readline().strip()
+        line  = oline.split('!')[0]
         self.i += 1
-        labels = []
+        self.labels = []
 
-        while line != '':
-            labels.append(line)
-            line = self.commandfile.readline().strip()
+        # While the line is NOT blank (blank line is a terminator) OR the line has comments in it,
+        #  keep reading in data.
+        while line != '' or len(oline.split('!')) != 1:
+            # Use keyword 'None' to specify a blank label
+            if line.lower() == 'none':
+                line = None
+            # If the line is blank, it's because of a commented out line.
+            if line != '':
+                self.labels.append(line)
+            # Read in next line. Incriment line counter.
+            oline = self.commandfile.readline().strip()
+            line = oline.split('!')[0]
             self.i += 1
-
-        self.labels = labels
 
     def check_lines_labels(self):
         # If lines and labels aren't the same shape, alter the labels list to be so.
 
-        labels = [None for x in self.lines] # List of the shape lines
+        labels = ['' for x in self.lines] # List of the shape lines
 
-        i = len(self.lines)
+        i = len(self.labels)
+        labels[:i] = self.labels
+        self.labels = labels
         for j in range(i):
-            labels[j] = self.labels[j]
+            if self.labels[j] == None:
+                self.labels[j] = ''
+
+        if self.echo:
+            print 'Lines and labels:'
+            for i, j in zip(self.lines, self.labels):
+                print 'Line: %.2f --- Label: %s' % (i, j)
+        print '\n'
 
 
     def run(self):
@@ -223,7 +249,7 @@ class lplinterp():
         # If we only have one fname, we can use a different reading function. 
         ## I don't know why I did this since it's not any faster, but it's not any slower either so whatever.
         if len(self.fname) == 1:
-            fname = str(fname[0])
+            self.fname = str(self.fname[0])
         # Check that an fname has been given at all:
         if self.fname[0] == '':
             print 'Please supply a spectrum file!!'
