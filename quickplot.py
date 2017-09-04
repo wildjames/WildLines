@@ -2,6 +2,8 @@
 #
 #   James Wild, 2017
 #
+#### DEPRECIATED!!! USE plotSpecLines INSTEAD!! ####
+#
 # Takes a columnated file from the user, and plot deisred columns. Assumes the zeroth column is wavelength, 
 #  and since it's designed for spectra we plot the Y axis as a relative flux.
 # Also has the option to write to a file.

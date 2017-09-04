@@ -457,7 +457,7 @@ class mplplotter():
             
             fname = fnames[search]
             print 'fit file:   %s\n' % fname
-            time.sleep(1)
+            time.sleep(0.5)
 
             #flines
             for root, dirnames, filenames in os.walk('.', followlinks=True):
@@ -474,7 +474,7 @@ class mplplotter():
             
             flines = fliness[search]
             print 'Line file:  %s\n' % flines
-            time.sleep(1)
+            time.sleep(0.5)
 
             #finput
             for root, dirnames, filenames in os.walk('.', followlinks=True):
@@ -490,7 +490,7 @@ class mplplotter():
             
             finput = finputs[search]
             print 'Input file: %s\n' % finput
-            time.sleep(1)
+            time.sleep(0.5)
 
             #spectrum file
             for root, dirnames, filenames in os.walk('.', followlinks=True):
@@ -506,7 +506,7 @@ class mplplotter():
             
             idfile = idfiles[search]
             print 'Spectrum output file: %s\n' % idfile
-            time.sleep(1)
+            time.sleep(0.5)
 
 
 
@@ -617,7 +617,7 @@ class mplplotter():
     # Create an instance of a figure and axes, with no data. Saved in self for access.
         fig, ax = mpl.subplots(figsize=(12,7))
 
-        fig.canvas.set_window_title('SFIT plotting tool - Wild 2017')
+        fig.canvas.set_window_title('SFIT plotting tool - Wild 2017 - %s' % self.fname)
         fig.subplots_adjust(left=0.05, bottom=0.13, right=0.98, top = 0.98, hspace=0.0)
         fig.canvas.mpl_connect('key_release_event', self.press)
         fig.canvas.mpl_connect('button_release_event', self.click)

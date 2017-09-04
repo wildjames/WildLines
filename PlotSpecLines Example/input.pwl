@@ -1,15 +1,15 @@
-echo on ! Enable verbose processing
+echo off ! Enable verbose processing
 
 ! Spectra inputs
 spec Pb_Sn_Ba_Ge_fuv_tyc1954.fit
 spec Pb_Sn_Ba_Ge_nuv_tyc1954.fit
 
-! We can change the columns to read in. Defaults to <0 1>, accepts up to 4 columns. 
+! We can change the columns to read in. Defaults to <0 1>.
 cols 0 1 3
 
-!title PG0909+276, Pb Sn Ge ! Figure title. Defualt <None>
+title PG0909+276, Pb Sn Ge ! Figure title. Defualt <None>
 
-! Lines to search for. Terminated by a blank line.
+! Lines to search for. Reads in wavelenghts until it finds a blank line.
 lines 
 1251.39
 1494.80 ! We can put comments here
@@ -23,9 +23,8 @@ lines
 labels 
 Sn III 1251$\rm \AA$
 Ge IV 1495$\rm \AA$
-Ge IV 1500$\rm \AA$ ! Similarly, comments can come here
-! Or here, without issue.
-Pb IV 1313$\rm \AA$
+Ge IV 1500$\rm \AA$
+None !If we want to have an unlabelled line, write 'None'! Pb IV 1313$\rm \AA$
 Pb IV 1755$\rm \AA$
 Ba II 2335$\rm \AA$
 
@@ -34,11 +33,13 @@ N 6              !---> Number of lines per fig. Default <6>
 text_shift 0.2   !---> text location. Default <0.5>
 offset 1.3       !---> flux offset applied to each subsequent lines. Default <1.1>
 figsize 3.20 6   !---> Figure size in inches. Default <3.20, 4>
-whitespace 0.15  !---> Y axis position shift. Default <0.15>
+lspace 0.15      !---> Left side padding. Default <0.15>
 v 23.0           !---> Velocity correction, km/s. Applied equally to all spectra. Defualt <0.0km/s>
 
-out n            !---> Output to file? [y/n]
+out y            !---> Output to file? [y/n, default n]
 oname Pb Sn Ge   !---> Output file name. Default <Lines.pdf>
 
+rspace           !---> If no argument is given to something that needs it, it's ignored.
+echo on
 ! Execute.
 run

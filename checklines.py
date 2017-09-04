@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # Report what data is in a linefile, and fix some types of bad data. Breakdown 
 #  by element/ion and how many lines dont have damping coefficients.
-# Requires the linefile to be in the standard lte format, and can't handle the 
-#  values that sometimes aren't space-separated. if it encounters these, it'll 
-#  break, so try and fix it in advance.
+# Requires the linefile to be in the standard .lte format.
+#
+# In order to compensate for the columns that sometimes touch when they have
+#  a minus sign, i.e. 1234 2.45-10.000 4321, it will replace any '-' with ' -'.
+#  This will probably be an issue if a line is in standard form, i.e. 1.23E-3,
+#  so be prepared for that. I added a rudimentary check, but I'm not convinced
+#  it'll handle edge cases too well...
 
 def line_check(file, pr):
 	# if pr == 0, this executes silently. If pr == 1, print the short table. If pr == 2, print the long table. if pr == 3, print both.
@@ -23,7 +27,19 @@ def line_check(file, pr):
 		# Scan throught the file and read the data into a list
 		for line in f:
 			# Check that there's no hyphenated numbers, and split the line.
-			line = line.replace('-',' -').split()
+			flag = False
+			temp = line.split()
+			for i in temp:
+				try:
+					float(i)
+				except:
+					flag = True
+
+			if flag:
+				line = line.replace('-',' -').split()
+			else:
+				line = line.split()
+
 			# Reset temp
 			temp = []
 			#Read the data into temp

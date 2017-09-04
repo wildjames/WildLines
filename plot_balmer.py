@@ -2,11 +2,13 @@
 #
 #	James Wild, 2017
 #
+#### DEPRECIATED!!! REPLACED BY plotSpecLines ####
+#
 # Takes a spectrum, and a list of lines. Finds the lines in the spectra, cuts them out
 #  and plot them on the same axis (offset progressively up) for comparison.
 # Writes out to file, if you want
 # To plot custom things, go to line 164
-# TODO: MAKE THIS TAKE AN INPUT FILE???
+
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter

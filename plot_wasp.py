@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # James Wild, 2017
 # Plots a WASP lightcurve, and does extremely rudimentary analysis for variations.
+# I didn't use this much, so it probably doesn't work very well and might need
+#  tweaking whenever you use it. Sorry, future me.
 
-fname = '1SWASP_J091251.66+272031.3.csv'
 fname = raw_input('Please enter a WASP .csv file: ')
-
-
 
 import numpy as np
 import matplotlib.pyplot as plt
