@@ -1,9 +1,8 @@
 #!/bin/bash
 
-echo "Make sure you sun this script as sudo!"
 echo "Creating Symbolic links in the bin..."
 
-## Change this to your bin!! ##
+## install location ##
 BIN="$HOME/WildCodesBin"
 mkdir $BIN
 
@@ -11,89 +10,69 @@ WILDLINES=$PWD
 echo "Creating symbolic links to current folder," $WILDLINES
 
 # Make all the files executable
-sudo chmod +x ./*
+chmod +x ./*
 
 # Create symbolic links
-ln -sf $WILDLINES/checklines.py      $BIN/checklines
-ln -sf $WILDLINES/quickplot.py       $BIN/quickplot
 ln -sf $WILDLINES/read_kurucz.py     $BIN/read_kurucz
 ln -sf $WILDLINES/read_TOSS.py       $BIN/read_TOSS
 ln -sf $WILDLINES/read_uky.py        $BIN/read_uky
 ln -sf $WILDLINES/read_VALD.py       $BIN/read_VALD
-ln -sf $WILDLINES/reportlines.py     $BIN/reportlines
 ln -sf $WILDLINES/wildlines.py       $BIN/wildlines
 ln -sf $WILDLINES/plotSpecLines.py   $BIN/plotSpecLines
+ln -sf $WILDLINES/reportlines.py     $BIN/reportlines
+ln -sf $WILDLINES/checklines.py      $BIN/checklines
+ln -sf $WILDLINES/quickplot.py       $BIN/quickplot
 
 # Check for python dependancies
 python -c 'import numpy'
 if [ $? = 1 ]; then
+    echo "I failed to find the python module numpy! I'll attempt to install it for you..."
     sudo -H pip install numpy
-else
-    echo "Numpy is installed!"
 fi
-
 python -c 'import matplotlib'
 if [ $? = 1 ]; then
+    echo "I failed to find the python module matplotlib! I'll attempt to install it for you..."
     sudo -H pip install matplotlib
-else
-    echo "Matplotlib is installed!"
 fi
-
 python -c 'import os'
 if [ $? = 1 ]; then
+    echo "I failed to find the python module os! I'll attempt to install it for you..."
     sudo -H pip install os
-else
-    echo "os is installed!"
 fi
-
 python -c 'import signal'
 if [ $? = 1 ]; then
+    echo "I failed to find the python module signal! I'll attempt to install it for you..."
     sudo -H pip install signal
-else
-    echo "signal is installed!"
 fi
-
 python -c 'import subprocess'
 if [ $? = 1 ]; then
+    echo "I failed to find the python module subprocess! I'll attempt to install it for you..."
     sudo -H pip install subprocess
-else
-    echo "subprocess is installed!"
 fi
-
 python -c 'import fnmatch'
 if [ $? = 1 ]; then
+    echo "I failed to find the python module fnmatch! I'll attempt to install it for you..."
     sudo -H pip install fnmatch
-else
-    echo "fnmatch is installed!"
 fi
-
 python -c 'import time'
 if [ $? = 1 ]; then
+    echo "I failed to find the python module time! I'll attempt to install it for you..."
     sudo -H pip install time
-else
-    echo "time is installed!"
 fi
-
 python -c 'import Tkinter'
 if [ $? = 1 ]; then
     echo -e "\e[7m\e[5mYou don't have Tkinter installed! Please go get it!"
     echo -e "http://www.greenteapress.com/thinkpython/swampy/install.html\e[0m"
-else
-    echo "Tkinter is installed!"
 fi
-
 python -c 'import ScrolledText'
 if [ $? = 1 ]; then
+    echo "I failed to find the python module ScrolledText! I'll attempt to install it for you..."
     sudo -H pip install 
-else
-    echo "ScrolledText is installed!"
 fi
-
 python -c 'import cycler'
 if [ $? = 1 ]; then
+    echo "I failed to find the python module cycler! I'll attempt to install it for you..."
     sudo -H pip install 
-else
-    echo "cycler is installed!"
 fi
 
 
@@ -108,7 +87,6 @@ echo "--> These take the outputs from the relevant websites (see comments of eac
 echo ""
 echo "plotSpecLines - Matplotlib plotting frontend, takes input from a command file to plot spectra."
 echo "quickplot     - Reads a spectrum file, or any file separated into columns, and plots a given section of it in a publication-style plot"
-# echo "plot_balmer   - Reads a spectrum, and generates plots of it's balmer lines. Can write to screen or a file"
 echo "reportlines   - Reads and summarises a .lte file"
 echo ''
 echo -e "\e[7m\e[5mMake sure you remember to add ~/WildCodesBin to your path!!!\e[0m"
